@@ -56,11 +56,23 @@ public class SubtitleUtil {
                         .build();
                 subtitleList.add(subtitle);
             }
+
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
             result = SubResult.fail("第 [" + (subtitleList.size() + 1) + "] 句出现错误, 错误的行(不符合规则: 中文或英文缺失):" + currentLine + "\n错误日志:" + e.getMessage());
         } finally {
+
             if (CollUtil.isNotEmpty(subtitleList)) {
+                for (int i = 0; i < subtitleList.size(); i++) {
+                    while (i > 0 && !subtitleList.get(i - 1).getEnglish().endsWith(StrUtil.COMMA)) {
+                        System.out.println("[" + i + "]" + subtitleList.get(i).getEnglish());
+                        subtitleList.get(i).setStart(subtitleList.get(i - 1).getStart());
+                        subtitleList.get(i).setChinese(subtitleList.get(i - 1).getChinese() + subtitleList.get(i).getChinese());
+                        subtitleList.get(i).setEnglish(subtitleList.get(i - 1).getEnglish() + subtitleList.get(i).getEnglish());
+                        subtitleList.remove(i - 1);
+                        i--;
+                    }
+                }
                 result = SubResult.ok(subtitleList);
             }
         }
@@ -90,9 +102,9 @@ public class SubtitleUtil {
             }
             String outputName = outputDirPath + fileName + StrUtil.UNDERLINE + index.getAndAdd(1) + StrUtil.UNDERLINE + System.currentTimeMillis() + ".m4a";
             String command = "ffmpeg -y -i " + filePath + " -ss " + timeRange.getStart() + " -to " + timeRange.getEnd() + " -vn -c:a copy " + outputName;
-            System.out.println(command);
-            String result = RuntimeUtil.execForStr(command);
-            System.out.println(result);
+//            System.out.println(command);
+//            String result = RuntimeUtil.execForStr(command);
+//            System.out.println(result);
         });
     }
 
